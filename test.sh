@@ -38,6 +38,31 @@ assert ''
 assert '/bin/pwd'
 assert '/bin/echo'
 
+# Generate Executable
+cat <<EOF | gcc -xc -o a.out -
+#include <stdio.h>
+int main(){ printf("hello form a.out\n") }
+EOF
+
+# cat <<EOF ... EOF:
+# これはヒアドキュメント（Here Document）と呼ばれる構文
+# EOF までの間に書かれたテキストをそのまま標準入力として扱います。
+# つまり、cat コマンドにCプログラムのコードを渡します。
+# gcc -xc -o a.out -:
+# -xc 入力をC言語のコードとして解釈する
+# -o a.out 実行ファイル生成
+# - 標準入力からソースコードを読み取る。この場合、cat からパイプで渡されるCコードを入力としてコンパイル
+
+# search command path without args
+assert 'pwd'
+assert 'echo'
+assert 'ls'
+assert './a.out'
+
+## no such command
+assert 'a.out'
+assert 'nosuchfile'
+
 cleanup
 echo 'all OK'
 
