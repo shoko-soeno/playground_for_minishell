@@ -4,6 +4,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+// __attribute__((noreturn)) は関数が戻り値を返さない
+// つまりこの関数が呼ばれたらプログラムが終了することを示す
 void	fatal_error (const char *msg) __attribute__((noreturn));
 
 void	fatal_error (const char *msg)
@@ -14,7 +16,8 @@ void	fatal_error (const char *msg)
 
 int	interpret(char *line)
 {
-	extern char	**environ;
+	extern char	**environ; //グローバル変数environ(環境変数のリストを指すポインタ)を参照
+	//argvの最初の要素として line を設定し、最後に NULL（リストの終了）を加える
 	char		*argv[] = {line, NULL};
 	pid_t		pid;
 	int			wstatus;
@@ -30,7 +33,9 @@ int	interpret(char *line)
 	} else {
 		//parent process
 		wait(&wstatus);
-		return (WEXITSTATUS(wstatus));
+		//子プロセスの終了ステータスを取得
+		//WEXITSTATUS マクロは、wstatus からプロセスの終了コードを抽出
+		return (WEXITSTATUS(wstatus)); 
 	}
 }
 
