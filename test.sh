@@ -53,13 +53,13 @@ EOF
 # -o a.out 実行ファイル生成
 # - 標準入力からソースコードを読み取る。この場合、cat からパイプで渡されるCコードを入力としてコンパイル
 
-# search command path without args
+# # search command path without args
 assert 'pwd'
 assert 'echo'
 assert 'ls'
 assert './a.out'
 
-## no such command
+# ## no such command
 assert 'a.out'
 assert 'nosuchfile'
 
