@@ -63,6 +63,11 @@ assert './a.out'
 assert 'a.out'
 assert 'nosuchfile'
 
+# Tokenize
+assert 'ls /'
+assert 'echo hello    world     '
+assert 'nosushfile'
+
 cleanup
 echo 'all OK'
 
