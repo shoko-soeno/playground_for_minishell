@@ -61,9 +61,9 @@ char	*search_path(const char *filename)
 		if (end)
 			strncpy(path, value, end - value);
 		else //最後のディレクトリパス
-			strlcpy(path, value, PATH_MAX);
-		strlcat(path, "/", PATH_MAX); //pathに"/bin"が追加されていたら、"/bin/"にする
-		strlcat(path, filename, PATH_MAX);
+			my_strlcat(path, value, PATH_MAX);
+		my_strlcat(path, "/", PATH_MAX); //pathに"/bin"が追加されていたら、"/bin/"にする
+		my_strlcat(path, filename, PATH_MAX);
 		if (access(path, X_OK) == 0)
 		{
 			char *dup;
