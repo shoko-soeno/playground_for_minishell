@@ -24,7 +24,7 @@ void	err_exit (const char *location, const char *msg, int status)
 	exit(status);
 }
 
-size_t strlcpy(char *dst, const char *src, size_t size)
+size_t	my_strlcpy(char *dst, const char *src, size_t size)
 {
     size_t srclen = strlen(src);
     if (size > 0) {
@@ -35,7 +35,7 @@ size_t strlcpy(char *dst, const char *src, size_t size)
     return srclen;
 }
 
-size_t strlcat(char *dst, const char *src, size_t size)
+size_t	my_strlcat(char *dst, const char *src, size_t size)
 {
     size_t dstlen = strlen(dst);
     size_t srclen = strlen(src);
@@ -83,12 +83,12 @@ char	*search_path(const char *filename)
 //strncpyはNULL終端を保証しない。
 //strlcpy、strlcatはnull終端を保証するが、バッファサイズが十分でないとコピーされる文字列の一部が失われる
 
-void vaidate_access(const char *path, const char *filename)
+void validate_access(const char *path, const char *filename)
 {
 	if (path == NULL)
-		error_exit(filename, "command not found", 127);
+		err_exit(filename, "command not found", 127);
 	if (access(path, F_OK) < 0)
-		error_exit(filename, "command not found", 127);
+		err_exit(filename, "command not found", 127);
 }
 
 int exec(char *argv[])
@@ -141,7 +141,7 @@ int	interpret(char *const line)
 	// 	return (WEXITSTATUS(wstatus)); 
 	// }
 
-	status = extec(argv);
+	status = exec(argv);
 	return (status);
 }
 

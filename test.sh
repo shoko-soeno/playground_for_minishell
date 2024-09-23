@@ -41,7 +41,7 @@ assert '/bin/echo'
 # Generate Executable
 cat <<EOF | gcc -xc -o a.out -
 #include <stdio.h>
-int main(){ printf("hello form a.out\n") }
+int main(){ printf("hello form a.out\n"); }
 EOF
 
 # cat <<EOF ... EOF:
