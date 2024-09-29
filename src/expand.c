@@ -45,6 +45,18 @@ void    quote_removal(t_token *tok)
             }
             p++;
         }
+        else if (*p == DOUBLE_QUOTE_CHAR)
+        {
+            p++; //skip quote
+            while (*p && *p != DOUBLE_QUOTE_CHAR)
+            {
+                if (*p == '\0')
+                    assert_error("Unclosed double quote");
+                append_char(&new_word, *p);
+                p++;
+            }
+            p++; //skip quote
+        }
         else
         {
             append_char(&new_word, *p);

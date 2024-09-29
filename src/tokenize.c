@@ -131,7 +131,20 @@ t_token *word(char **rest, char *line)
             //skip quote
             line++;
         } 
-        else
+        else if (*line == DOUBLE_QUOTE_CHAR)
+        {
+            //skip quote
+            line++;
+            while (*line != DOUBLE_QUOTE_CHAR)
+            {
+                if (*line == '\0')
+                    assert_error("Unclosed double quote");
+                line++;
+            }
+            //skip quote
+            line++;
+        }
+        else 
             line++;
     }
     word = strndup(start, line - start);

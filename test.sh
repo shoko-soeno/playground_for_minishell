@@ -5,12 +5,12 @@
 #     rm -f cmp out
 # }
 
-cat <<EOF | gcc -xc -o a.out -
+cat <<EOF | clang -xc -o a.out -
 #include <stdio.h>
 int main() { printf("hello from a.out\n"); }
 EOF
 
-cat <<EOF | gcc -xc -o print_args -
+cat <<EOF | clang -xc -o print_args -
 #include <stdio.h>
 int main(int argc, char *argv[]){ 
     for (int i = 0; argv[i]; i++)
@@ -36,8 +36,9 @@ assert() {
     # 引数$1に指定されたコマンドを(左詰めで30文字分の幅を確保して)表示
     # '%-30s: 'はシェルで解釈されずそのままprintfに渡される。
     # "\"$1\""　シェルで変数展開。"を文字として出力する
-    printf '%-30s: ' "\"$1\""
-    printf '%-50s: ' "\"$1\""
+    # printf '%-30s: ' "\"$1\""
+    printf '%-50s: ' "[$1]"
+
     # exit status
     # $1の値をBashにパイプで渡す。エスケープシーケンスで解釈しつつ（-e）改行なし(-n)で。
     # bashでの実行結果をcmpファイルに保存
@@ -87,8 +88,14 @@ assert "./print_args 'hello  world' '42 Tokyo'"
 assert "echo 'hello  world' '42Tokyo'"
 assert "echo '\"hello world\"' '42Tokyo'"
 
+## double quote
+assert './print_args "hello  world" "42 Tokyo"'
+assert 'echo "hello  world" "42Tokyo"'
+assert "echo \"'hello   world'\" \"42Tokyo\""
+
 ## combination 
 assert "echo hello'     world'"
+assert "echo hello'   world '\" 42Tokyo  \""
 
 cleanup
 echo 'all OK'
