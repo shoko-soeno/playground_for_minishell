@@ -4,10 +4,14 @@
 #include <stdbool.h>
 
 //error.c
+# define ERROR_TOKENIZE 258
+extern bool syntax_error;
+
 void todo(const char *msg) __attribute__((noreturn));
 void fatal_error(const char *msg) __attribute__((noreturn));
 void assert_error(const char *msg) __attribute__((noreturn));
 void err_exit(const char *location, const char *msg, int status) __attribute__((noreturn));
+void tokenize_error(const char *location, char **reset, char *line);
 
 //tokenize.c
 typedef struct s_token  t_token;
