@@ -1,5 +1,6 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
+#include <stddef.h>
 #include <stdbool.h>
 
 //error.c
@@ -28,8 +29,18 @@ struct s_token
     t_token *next;
 };
 
+# define SINGLE_QUOTE_CHAR '\''
 t_token *tokenize(char *line);
 char **token_list_to_argv(t_token *tok);
+t_token	*new_token(char *word, t_token_kind kind);
+bool   	is_blank(char c);
+bool   	consume_blank(char **rest, char *line);
+bool   	startswith(const char *s, const char *keyword);
+bool   	is_operator(const char *s);
+bool   	is_metacharacter(char c);
+bool   	is_word(const char *s);
+t_token	*operator(char **rest, char *line);
+t_token	*word(char **rest, char *line);
 
 // expand.c
 void expand(t_token *tok);
@@ -37,5 +48,9 @@ void expand(t_token *tok);
 // destructor.c
 void free_tok(t_token *tok);
 void free_argv(char **argv);
+
+// main.c
+size_t	my_strlcpy(char *dst, const char *src, size_t size);
+size_t	my_strlcat(char *dst, const char *src, size_t size);
 
 #endif

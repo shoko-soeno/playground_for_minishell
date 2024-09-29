@@ -2,7 +2,7 @@
 UNAME_S := $(shell uname -s)
 
 NAME = minishell
-CC = cc
+CC = $(if $(findstring Darwin, $(UNAME_S)), cc, clang)
 INCLUDES = -I include
 CFLAGS = -Wall -Wextra -Werror $(INCLUDES)
 
@@ -17,7 +17,7 @@ else
 	INCLUDES += 
 endif
 
-SRCS = src/main.c src/error.c src/tokenize.c src/destructor.c
+SRCS = src/main.c src/error.c src/tokenize.c src/destructor.c src/expand.c
 OBJS = $(SRCS:src/%.c=src/%.o)
 
 # General rules

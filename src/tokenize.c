@@ -89,6 +89,7 @@ bool is_word(const char *s)
     return (*s && !is_metacharacter(*s));
 }
 
+/* 文字列からoperatorを抜き出して新しいトークンとして返す */
 t_token *operator(char **reset, char *line)
 {
     static char *const operators[] = {"||", "&", "&&", ";", ";;", "(", ")", "|", "\n"};
@@ -116,7 +117,23 @@ t_token *word(char **rest, char *line)
     char *word;
 
     while (*line && !is_metacharacter(*line))
-        line++;
+    {
+        if (*line == SINGLE_QUOTE_CHAR)
+        {
+            //skip quote
+            line++;
+            while (*line != SINGLE_QUOTE_CHAR)
+            {
+                if (*line == '\0')
+                    assert_error("Unclosed single quote");
+                line++;
+            }
+            //skip quote
+            line++;
+        } 
+        else
+            line++;
+    }
     word = strndup(start, line - start);
     if (word == NULL)
         fatal_error("strndup");
@@ -129,13 +146,14 @@ t_token *tokenize(char *line)
     t_token head;
     t_token *tok;
 
-    head.next = NULL;
-    tok = &head;
+    head.next = NULL; //dummy 実際のtokenはこの先に追加される
+    tok = &head; //tokは現在操作中のtokenを指すポインタ
     while (*line)
     {
         if (consume_blank(&line, line))
             continue;
         else if (is_operator(line))
+            // 新しいトークンをtok->nextに追加し、tokポインタも更新して次のトークンを指すようにする
             tok = tok->next = operator(&line, line);
         else if (is_word(line))
             tok = tok->next = word(&line, line);
@@ -146,6 +164,9 @@ t_token *tokenize(char *line)
     return (head.next);
 }
 
+/* tail recursion 再帰呼出しの後に追加の処理を行わない
+各再帰ステップでスタックに新しい情報を保持する必要がないので
+最適化（スタックフレームの再利用）されやすくなる */
 char **tail_recursive(t_token *tok, int nargs, char **argv)
 {
     if (tok == NULL || tok->kind == TK_EOF)
