@@ -5,24 +5,9 @@
 #include <readline/history.h>
 #include <sys/wait.h>
 #include <string.h>
+#include "minishell.h"
 #define PATH_MAX 4096
 
-// __attribute__((noreturn)) は関数が戻り値を返さない
-// つまりこの関数が呼ばれたらプログラムが終了することを示す
-void	fatal_error (const char *msg) __attribute__((noreturn));
-void	err_exit (const char *location, const char *msg, int status) __attribute((noreturn));
-
-void	fatal_error (const char *msg)
-{
-	dprintf(STDERR_FILENO, "Fatal Error: %s\n", msg);
-	exit(1);
-}
-
-void	err_exit (const char *location, const char *msg, int status)
-{
-	dprintf(STDERR_FILENO, "minishell: %s: %s\n", location, msg);
-	exit(status);
-}
 
 size_t	my_strlcpy(char *dst, const char *src, size_t size)
 {
@@ -114,35 +99,26 @@ int exec(char *argv[])
 	}
 }
 
-int	interpret(char *const line)
+void	interpret(char *line, int *stat_loc)
 {
-	// extern char	**environ; //グローバル変数environ(環境変数のリストを指すポインタ)を参照
-	// argvの最初の要素として line を設定し、最後に NULL（リストの終了）を加える
-	char		*argv[] = {line, NULL};
-	// pid_t		pid;
-	// int			wstatus;
-	int status;
+	t_token	*tok;
+	char 	**argv;
 
-	// pid = fork();
-	// if (pid < 0)  //forkが失敗したらエラーを表示して終了
-	// 	fatal_error("fork");
-	// else if (pid == 0)
-	// {
-	// 	//子プロセス
-	// 	//実行するプログラムのパス、プログラム名のリスト、環境変数のリスト
-	// 	execve(line, argv, environ);
-	// 	fatal_error("execve");
-	// } else {
-	// 	//子プロセスが終了するまで親プロセスをブロック
-	// 	//終了時にステータスをwstatusに格納する
-	// 	//wstatusはビットでフラグを管理している
-	// 	wait(&wstatus);
-	// 	//WEXITSTATUS マクロは、wstatus からプロセスの終了コードのみを抽出
-	// 	return (WEXITSTATUS(wstatus)); 
-	// }
-
-	status = exec(argv);
-	return (status);
+	tok = tokenize(line);
+	if (tok->kind == TK_EOF)
+		;
+	else if (syntax_error)
+	{
+		*stat_loc = ERROR_TOKENIZE;
+	}	
+	else
+	{
+		expand(tok);
+		argv = token_list_to_argv(tok);
+		*stat_loc = exec(argv);
+		free_argv(argv);
+	}
+	free_tok(tok);
 }
 
 /*
@@ -169,7 +145,7 @@ int main(void)
 			break;
 		if (*line)
 			add_history(line);
-		status = interpret(line);
+		interpret(line, &status);
 		free(line);
 	}
 	exit(status);
