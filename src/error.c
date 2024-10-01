@@ -37,5 +37,5 @@ void tokenize_error (const char *location, char **reset, char *line)
     dprintf(STDERR_FILENO, reset ? "reset: %s\n" : "reset: NULL\n", reset ? *reset : NULL);
     while (*line)
         line++;
-    *reset = NULL;
+    *reset = line; //ここがNULLになっていたのでセグフォしてた
 }
