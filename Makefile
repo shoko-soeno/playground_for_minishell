@@ -4,7 +4,7 @@ UNAME_S := $(shell uname -s)
 NAME = minishell
 CC = $(if $(findstring Darwin, $(UNAME_S)), cc, clang)
 INCLUDES = -I include
-CFLAGS = -Wall -Wextra -Werror $(INCLUDES)
+CFLAGS = -Wall -Wextra -Werror -g $(INCLUDES)
 
 ifeq ($(UNAME_S),Darwin)
 	# macOS用の設定

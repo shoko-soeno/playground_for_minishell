@@ -161,6 +161,9 @@ t_token *tokenize(char *line)
     t_token head;
     t_token *tok;
 
+    //lineのNULLガードについては後ほど確認
+    if (line == NULL)
+        return NULL;
     syntax_error = false;
     head.next = NULL; //dummy 実際のtokenはこの先に追加される
     tok = &head; //tokは現在操作中のtokenを指すポインタ
@@ -202,6 +205,7 @@ char **tail_recursive(t_token *tok, int nargs, char **argv)
     return (tail_recursive(tok->next, nargs + 1, argv));
 }
 
+// t_tokenのリストをargv配列に変換してコマンド実行に使う
 char **token_list_to_argv(t_token *tok)
 {
     char **argv;
