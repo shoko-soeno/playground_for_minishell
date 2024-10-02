@@ -17,7 +17,7 @@ else
 	INCLUDES += 
 endif
 
-SRCS = src/main.c src/error.c src/tokenize.c src/destructor.c src/expand.c
+SRCS = src/main.c src/error.c src/tokenize.c src/destructor.c src/expand.c src/parse.c
 OBJS = $(SRCS:src/%.c=src/%.o)
 
 # General rules
