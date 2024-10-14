@@ -8,7 +8,6 @@
 #include "minishell.h"
 #define PATH_MAX 4096
 
-
 size_t	my_strlcpy(char *dst, const char *src, size_t size)
 {
     size_t srclen = strlen(src);
@@ -127,7 +126,6 @@ GNU Readlineライブラリの内部で使用されるファイルポインタ
 Readlineが出力を行う際に使用するストリームを指している
 デフォルトでは、このストリームは標準出力（stdout）
 必要に応じて他のストリーム（たとえば標準エラー出力のstderr）に変更できる
-
 シェルプロンプト (minishell$ ) はユーザーにコマンドを入力させるためのもの
 */
 
