@@ -205,6 +205,7 @@ pipeline_tail(struct cmd *cmdhead) // get the last command in the pipeline
 #define IDENT_CHAR_P(c) (!isspace((int)c) && ((c) != '|') && ((c) != '>'))
 // check if c is a character that can be part of an identifier
 // space, pipe and redirect are not part of an identifier
+// コマンドや引数として扱うべき文字列の一部かどうかを判定する関数
 
 static struct cmd*
 parse_command_line(char *p)
