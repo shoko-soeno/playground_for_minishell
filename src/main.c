@@ -40,13 +40,13 @@ char	*search_path(const char *filename)
 	value = getenv("PATH");
 	while (*value)
 	{
-		bzero(path, PATH_MAX); //path配列の初期化
+		bzero(path, PATH_MAX); // path配列の初期化
 		end = strchr(value, ':');
 		if (end)
 			strncpy(path, value, end - value);
 		else //最後のディレクトリパス
 			my_strlcat(path, value, PATH_MAX);
-		my_strlcat(path, "/", PATH_MAX); //pathに"/bin"が追加されていたら、"/bin/"にする
+		my_strlcat(path, "/", PATH_MAX); // pathに"/bin"が追加されていたら、"/bin/"にする
 		my_strlcat(path, filename, PATH_MAX);
 		if (access(path, X_OK) == 0)
 		{
@@ -56,7 +56,7 @@ char	*search_path(const char *filename)
 			dup = strdup(path);
 			if (dup == NULL)
 				fatal_error("strdup");
-			return (dup); //実行可能ファイルのパスを返す
+			return (dup); // 実行可能ファイルのパスを返す
 		}
 		if (end == NULL)
 			return (NULL);
