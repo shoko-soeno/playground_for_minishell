@@ -179,14 +179,44 @@ void free_ast(Node *node)
     free(node);
 }
 
-void test_parser(char *input)
-{
+// Evaluate the AST and return the integer result
+int eval(Node *node) {
+    switch (node->kind) {
+    case ND_NUM:
+        return node->val;
+    case ND_ADD:
+        return eval(node->lhs) + eval(node->rhs);
+    case ND_SUB:
+        return eval(node->lhs) - eval(node->rhs);
+    case ND_MUL:
+        return eval(node->lhs) * eval(node->rhs);
+    case ND_DIV: {
+        int rhs_val = eval(node->rhs);
+        if (rhs_val == 0) {
+            fprintf(stderr, "Error: Division by zero!\n");
+            exit(1);
+        }
+        return eval(node->lhs) / rhs_val;
+    }
+    default:
+        fprintf(stderr, "Unknown node kind: %d\n", node->kind);
+        exit(1);
+    }
+}
+
+void test_parser(char *input) {
     current_input = input;
     Node *ast = expr();
 
-    printf("input: %s\n", input);
-    printf("output:\n");
+    printf("input:  %s\n", input);
+    printf("AST:\n");
     print_ast(ast, 0);
+
+    // Evaluate the AST
+    int result = eval(ast);
+    printf("result: %d\n\n", result);
+
+    // Free the AST
     free_ast(ast);
 }
 
