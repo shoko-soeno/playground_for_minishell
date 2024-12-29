@@ -39,8 +39,9 @@ typedef struct Node {
             size_t count;
         } wordlist;
         struct {
-            char *symbol;
-            struct Node *filename;
+            char **symbols;
+            char **filenames;
+            size_t count;
         } redirect;
     } data;
 } Node;
@@ -73,7 +74,8 @@ typedef enum {
     TOKEN_PIPE,             // |
     TOKEN_AND,              // &&
     TOKEN_OR,               // ||
-    TOKEN_REDIRECT,      // <
+    TOKEN_REDIRECT_IN,      // <
+    TOKEN_REDIRECT_OUT,
     TOKEN_EOF
 } TokenType;
 
@@ -83,38 +85,27 @@ typedef struct Token {
     struct Token *next;
 } t_token;
 
-// レキサー関数のプロトタイプ
+// lexer
 t_token *lexer(const char *input);
+void free_token_list(t_token *token);
 
-void *xmalloc(size_t size)
-{
-    void *p = malloc(size);
-    if (!p) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    return p;
-}
-
-/*------------------ ASTNode Creation Functions------------------*/
-
-// sample_ast/sample_create_ast.c
-Node *new_node(NodeKind kind, Node *lhs, Node *rhs);
-Node *create_wordlist_node(char **words, size_t count);
-Node *create_redirect_node(char *symbol, Node *filename);
-Node *create_command_node(char **words, size_t count, const char *redirect_symbol, char *filename);
-
-// sample_ast/sample_parser.c
+// parser
 Node *parse_start(t_token *token_list);
 void free_token_list(t_token *token);
 void free_ast(Node *node);
 
-// sample_ast/sample_execute.c
-void execute_command_node(Node *node);
-void execute_pipe_node(Node *node);
-void execute_and_node(Node *node);
-void execute_or_node(Node *node);
-void execute_command(Node *node);
+// create_ast
+Node *new_node(NodeKind kind, Node *lhs, Node *rhs);
+Node *create_wordlist_node(char **words, size_t count);
+Node *create_redirect_node(char *symbol, char *filename);
+Node *create_command_node(char **words, size_t count, Node *redirect);
 
-// sample_ast/sample_print_ast.c
+// execute
+void execute_command(Node *node, char **envp);
+void execute_redirect(Node *node);
 void print_ast(Node *node, int depth);
+
+// print_ast
+void print_ast(Node *node, int depth);
+
+void *xmalloc(size_t size);

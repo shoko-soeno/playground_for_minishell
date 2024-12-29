@@ -1,71 +1,60 @@
-#include <stdio.h>
-#include <stdbool.h>
 #include "sample.h"
-
 #include <stdio.h>
 
-// ヘルパー関数：インデントを印字
-static void print_indent(int depth) {
+void print_indent(int depth) {
     for (int i = 0; i < depth; i++) {
         printf("  ");
     }
 }
 
-// ASTの表示関数
 void print_ast(Node *node, int depth) {
-    if (node == NULL) {
-        print_indent(depth);
-        printf("NULL\n");
-        return;
-    }
+    if (!node) return;
 
     print_indent(depth);
     switch (node->kind) {
         case NODE_COMMAND:
-            printf("Command\n");
-            if (node->data.wordlist.count > 0) {
-                print_indent(depth + 1);
-                printf("Words: ");
-                for (size_t i = 0; i < node->data.wordlist.count; i++) {
-                    printf("%s ", node->data.wordlist.words[i]);
+            printf("COMMAND: ");
+            if (node->lhs && node->lhs->kind == NODE_WORDLIST) {
+                for (size_t i = 0; i < node->lhs->data.wordlist.count; i++) {
+                    printf("%s ", node->lhs->data.wordlist.words[i]);
                 }
-                printf("\n");
             }
-            if (node->rhs != NULL && node->rhs->kind == NODE_REDIRECT) {
+            printf("\n");
+            if (node->rhs) {
                 print_ast(node->rhs, depth + 1);
             }
             break;
         case NODE_PIPE:
-            printf("Pipe |\n");
+            printf("PIPE\n");
             print_ast(node->lhs, depth + 1);
             print_ast(node->rhs, depth + 1);
             break;
         case NODE_AND:
-            printf("Logical AND &&\n");
+            printf("AND\n");
             print_ast(node->lhs, depth + 1);
             print_ast(node->rhs, depth + 1);
             break;
         case NODE_OR:
-            printf("Logical OR ||\n");
+            printf("OR\n");
             print_ast(node->lhs, depth + 1);
             print_ast(node->rhs, depth + 1);
             break;
         case NODE_REDIRECT:
-            printf("Redirection %s\n", node->data.redirect.symbol);
-            print_ast(node->data.redirect.filename, depth + 1);
+            printf("REDIRECT: ");
+            for (size_t i = 0; i < node->data.redirect.count; i++) {
+                printf("%s -> %s ", node->data.redirect.symbols[i], node->data.redirect.filenames[i]);
+            }
+            printf("\n");
             break;
         case NODE_WORDLIST:
-            printf("WordList (%zu)\n", node->data.wordlist.count);
+            printf("WORDLIST: ");
             for (size_t i = 0; i < node->data.wordlist.count; i++) {
-                print_indent(depth + 1);
-                printf("WORD: %s\n", node->data.wordlist.words[i]);
+                printf("%s ", node->data.wordlist.words[i]);
             }
-            break;
-        case NODE_EOF:
-            printf("EOF\n");
+            printf("\n");
             break;
         default:
-            printf("Unknown node type\n");
+            printf("UNKNOWN NODE\n");
+            break;
     }
 }
-
