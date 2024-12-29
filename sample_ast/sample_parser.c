@@ -3,6 +3,20 @@
 #include <stdio.h>
 #include <string.h>
 
+/*
+For logical operators
+    The lhs is the left-hand command/sub-expression
+For pipes
+    The lhs is the left-hand command
+    The rhs is the right-hand command
+For commands
+    don't use lhs unless they are part of a larger structure 
+    like a pipe or logical operation
+For redirections
+    don't use lhs directly,
+    but they can appear as a rhs of a command node
+*/
+
 static t_token *current_token;
 
 static void parse_error(const char *message) {
@@ -25,8 +39,8 @@ Node *parse_wordlist() {
         parse_error("Expected WORD in wordlist");
     }
 
-    size_t capacity = 4;
-    size_t count = 0;
+    size_t capacity = 4; // initial saize of the array
+    size_t count = 0; // number of words parsed
     char **words = malloc(sizeof(char *) * capacity);
 
     while (expect_token(TOKEN_WORD)) {
@@ -34,6 +48,7 @@ Node *parse_wordlist() {
             capacity *= 2;
             words = realloc(words, sizeof(char *) * capacity);
         }
+        // store the current word
         words[count++] = strdup(current_token->value);
         advance();
     }
@@ -65,6 +80,7 @@ Node *parse_redirect() {
     return create_redirect_node(symbol, filename);
 }
 
+// only supports redirect after wordlist
 Node *parse_command() {
     Node *wordlist = parse_wordlist();
     Node *redirect = NULL;
@@ -88,27 +104,23 @@ Node *parse_command() {
 
 Node *parse_pipe() {
     Node *left = parse_command();
-
     while (expect_token(TOKEN_PIPE)) {
         advance();
         Node *right = parse_command();
         left = new_node(NODE_PIPE, left, right);
     }
-
     return left;
 }
 
 Node *parse_logical() {
-    Node *left = parse_pipe();
-
+    Node *left = parse_pipe(); // left currently holds the root of the AST built so far
     while (expect_token(TOKEN_AND) || expect_token(TOKEN_OR)) {
         NodeKind kind = current_token->type == TOKEN_AND ? NODE_AND : NODE_OR;
         advance();
-        Node *right = parse_pipe();
-        left = new_node(kind, left, right);
+        Node *right = parse_pipe(); // right represents the newly parsed command
+        left = new_node(kind, left, right); //combine into a logical node
     }
-
-    return left;
+    return left; // the left variable holds the root of the AST
 }
 
 Node *parse_start(t_token *token_list) {

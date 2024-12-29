@@ -56,7 +56,6 @@ void execute_command_node(Node *node, char **envp)
         execute_redirect(node->rhs);
     }
 
-
     char *command_path = resolve_command_path(args[0], envp);
     if (!command_path) {
         fprintf(stderr, "Command not found: %s\n", args[0]);
@@ -82,7 +81,7 @@ void execute_command_node(Node *node, char **envp)
     free(command_path);
 }
 
-void execute_pipe_node(Node *node) {
+void execute_pipe_node(Node *node, char **envp) {
     if (node->kind != NODE_PIPE) return;
 
     int pipefd[2];
@@ -96,7 +95,7 @@ void execute_pipe_node(Node *node) {
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[0]);
         close(pipefd[1]);
-        execute_command(node->lhs, NULL);
+        execute_command(node->lhs, envp);
         exit(EXIT_FAILURE);
     }
 
@@ -105,7 +104,7 @@ void execute_pipe_node(Node *node) {
         dup2(pipefd[0], STDIN_FILENO);
         close(pipefd[1]);
         close(pipefd[0]);
-        execute_command(node->rhs, NULL);
+        execute_command(node->rhs, envp);
         exit(EXIT_FAILURE);
     }
 
@@ -115,23 +114,23 @@ void execute_pipe_node(Node *node) {
     waitpid(pid2, NULL, 0);
 }
 
-void execute_logical_node(Node *node) {
+void execute_logical_node(Node *node, char **envp) {
     if (node->kind != NODE_AND && node->kind != NODE_OR) return;
 
     pid_t pid = fork();
     if (pid == 0) {
-        execute_command(node->lhs, NULL);
+        execute_command(node->lhs, envp);
         exit(EXIT_SUCCESS);
     } else if (pid > 0) {
         int status;
         waitpid(pid, &status, 0);
         if (node->kind == NODE_AND) {
             if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-                execute_command(node->rhs, NULL);
+                execute_command(node->rhs, envp);
             }
         } else if (node->kind == NODE_OR) {
             if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-                execute_command(node->rhs, NULL);
+                execute_command(node->rhs, envp);
         }
     } else {
         perror("fork");
@@ -182,11 +181,11 @@ void execute_command(Node *node, char **envp) {
             execute_command_node(node, envp);
             break;
         case NODE_PIPE:
-            execute_pipe_node(node);
+            execute_pipe_node(node, envp);
             break;
         case NODE_AND:
         case NODE_OR:
-            execute_logical_node(node);
+            execute_logical_node(node, envp);
             break;
         default:
             fprintf(stderr, "Unknown node kind: %d\n", node->kind);
